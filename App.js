@@ -1,14 +1,4 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
-
 import React, {useEffect, useState} from 'react';
-import axios from 'axios';
-
 import {
   ActivityIndicator,
   Button,
@@ -18,6 +8,7 @@ import {
   Text,
   View,
 } from 'react-native';
+import axios from 'axios';
 
 const App = () => {
   const [loading, setLoading] = useState(false);
@@ -47,6 +38,7 @@ const App = () => {
     setRefresh(!refresh);
   };
 
+  //setTimeout(refreshHandler, 10000);
   //console.log('My data', data);
 
   const renderItem = ({item}) => {
@@ -89,12 +81,13 @@ const App = () => {
             </View>
           </View>
         </View>
+
         {loading ? (
           <View style={{flex: 1, justifyContent: 'center'}}>
             <ActivityIndicator size="large" color="#0000ff" />
           </View>
         ) : (
-          <View>
+          <View style={{flex: 1}}>
             <FlatList
               data={data.data}
               renderItem={renderItem}
