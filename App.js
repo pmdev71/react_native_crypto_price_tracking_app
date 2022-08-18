@@ -11,17 +11,17 @@ import axios from 'axios';
 
 import {
   ActivityIndicator,
+  FlatList,
   ImageBackground,
+  SafeAreaView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from 'react-native';
 
 const App = () => {
   const [loading, setLoading] = useState(false);
-  const [data, setData] = useState(null);
-  const API_KEY = '0f4486b55be8c40c937d88800ed6991a';
+  const [data, setData] = useState([]);
 
   useEffect(() => {
     setLoading(true);
@@ -30,15 +30,33 @@ const App = () => {
         `https://data.messari.io/api/v1/assets?fields=id,slug,symbol,metrics/market_data/price_usd`,
       )
       .then(res => {
-        console.log(res.data);
-        setData(res.data);
+        //console.log(res.data.data);
+        setData(res.data.data);
         setLoading(false);
       })
       .catch(err => {
         console.log(err);
         setLoading(false);
       });
-  }, []);
+  }, [5000]);
+
+  //console.log('My data', data);
+
+  const renderItem = ({item}) => {
+    return (
+      <View style={styles.item}>
+        <View>
+          <Text style={styles.text}>{item.symbol}</Text>
+          <Text style={styles.text}>{item.slug}</Text>
+        </View>
+        <View>
+          <Text style={styles.text}>
+            1 {item.slug} ⇆ {item.metrics.market_data.price_usd.toFixed(8)}$
+          </Text>
+        </View>
+      </View>
+    );
+  };
 
   return (
     <View style={styles.root}>
@@ -46,10 +64,20 @@ const App = () => {
         resizeMode="cover"
         style={styles.image}
         source={require('./assets/background1.png')}>
-        <View style={styles.topBar}></View>
-        {loading && (
+        <View style={styles.topBar}>
+          <Text>Hi</Text>
+        </View>
+        {loading ? (
           <View>
             <ActivityIndicator size="large" color="white" />
+          </View>
+        ) : (
+          <View>
+            <FlatList
+              data={data}
+              renderItem={renderItem}
+              keyExtractor={item => item.id}
+            />
           </View>
         )}
       </ImageBackground>
@@ -69,44 +97,24 @@ const styles = StyleSheet.create({
   topBar: {
     alignItems: 'center',
   },
-  textInput: {
-    width: '80%',
-    height: 40,
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    paddingHorizontal: 16,
-    fontSize: 16,
-    color: '#000',
-    marginVertical: 20,
-    marginTop: 30,
-  },
-  cityCountryText: {
-    marginTop: '40%',
-    color: '#fff',
-    fontSize: 35,
-    fontWeight: '700',
-  },
 
   infoView: {
     alignItems: 'center',
   },
-
-  dateText: {
-    color: '#fff',
-    fontSize: 22,
-    marginVertical: 10,
+  item: {
+    backgroundColor: 'black',
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    margin: 8,
+    borderRadius: 5,
   },
-  tempText: {
-    fontSize: 35,
+  text: {
+    fontSize: 12,
     fontWeight: '700',
     color: '#fff',
-    marginVertical: 10,
-  },
-  minMaxText: {
-    fontSize: 18,
-    color: '#fff',
-    marginVertical: 10,
-    fontWeight: '500',
   },
 });
 
