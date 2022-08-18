@@ -11,9 +11,9 @@ import axios from 'axios';
 
 import {
   ActivityIndicator,
+  Button,
   FlatList,
   ImageBackground,
-  SafeAreaView,
   StyleSheet,
   Text,
   View,
@@ -21,24 +21,31 @@ import {
 
 const App = () => {
   const [loading, setLoading] = useState(false);
+  const [refresh, setRefresh] = useState(false);
+  const [refreshTime, setRefreshTime] = useState('');
   const [data, setData] = useState([]);
 
   useEffect(() => {
     setLoading(true);
+    setRefreshTime(new Date().toLocaleString());
     axios
       .get(
         `https://data.messari.io/api/v1/assets?fields=id,slug,symbol,metrics/market_data/price_usd`,
       )
       .then(res => {
         //console.log(res.data.data);
-        setData(res.data.data);
+        setData(res.data);
         setLoading(false);
       })
       .catch(err => {
         console.log(err);
         setLoading(false);
       });
-  }, [5000]);
+  }, [refresh]);
+
+  const refreshHandler = () => {
+    setRefresh(!refresh);
+  };
 
   //console.log('My data', data);
 
@@ -51,7 +58,7 @@ const App = () => {
         </View>
         <View>
           <Text style={styles.text}>
-            1 {item.slug} ⇆ {item.metrics.market_data.price_usd.toFixed(8)}$
+            1 {item.slug} ⇆ {item.metrics.market_data.price_usd.toFixed(2)}$
           </Text>
         </View>
       </View>
@@ -65,16 +72,31 @@ const App = () => {
         style={styles.image}
         source={require('./assets/background1.png')}>
         <View style={styles.topBar}>
-          <Text>Hi</Text>
+          <View style={styles.topBarText}>
+            <Text style={styles.textHeader}>Crypto Tracker</Text>
+            <Text style={[styles.text, {marginLeft: 10, color: '#e2ed0c'}]}>
+              {refreshTime}
+            </Text>
+          </View>
+
+          <View>
+            <View style={styles.button}>
+              <Button
+                color="#0a0c36"
+                onPress={() => refreshHandler()}
+                title="Refresh"
+              />
+            </View>
+          </View>
         </View>
         {loading ? (
-          <View>
-            <ActivityIndicator size="large" color="white" />
+          <View style={{flex: 1, justifyContent: 'center'}}>
+            <ActivityIndicator size="large" color="#0000ff" />
           </View>
         ) : (
           <View>
             <FlatList
-              data={data}
+              data={data.data}
               renderItem={renderItem}
               keyExtractor={item => item.id}
             />
@@ -95,7 +117,9 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
   },
   topBar: {
-    alignItems: 'center',
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
 
   infoView: {
@@ -108,13 +132,25 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 14,
     paddingVertical: 8,
-    margin: 8,
+    margin: 6,
     borderRadius: 5,
   },
   text: {
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: '700',
     color: '#fff',
+  },
+  textHeader: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#fff',
+    alignSelf: 'center',
+    paddingHorizontal: 10,
+    backgroundColor: 'transparent',
+  },
+  button: {
+    paddingHorizontal: 10,
+    margin: 10,
   },
 });
 
